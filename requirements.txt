@@ -1,0 +1,24 @@
+# WSM · Wake-Sleep Skill Router — runtime dependencies
+#
+# Python >= 3.10 is required.
+#
+# ZERO third-party pip dependencies. `pip install -r requirements.txt` installs
+# nothing: there are no uncommented requirement lines in this file, by design.
+# The entire project runs on the Python standard library only.
+#
+# Required standard-library capability (not pip-installable):
+#   - sqlite3 built with the FTS5 extension (virtual tables `USING fts5`).
+#     Verify on your machine with:
+#       python -c "import sqlite3; c=sqlite3.connect(':memory:'); c.execute('CREATE VIRTUAL TABLE t USING fts5(x)'); print('FTS5 OK')"
+#     A Python/SQLite built WITHOUT FTS5 cannot run the router. This is a
+#     build-time property of your interpreter, not a package you can install.
+#
+# No external data is downloaded at install time or at run time.
+# The router needs the in-repository skill data to be present:
+#   - corpus/          the 180 skill definitions, shipped with this repository
+#   - skillgraph.db    the SQLite + FTS5 index, shipped with this repository
+# These are checked in on purpose; there is no network fetch, no private
+# absolute path, and no hidden fixture outside the repository.
+#
+# Reproduce / verify:
+#   python -m unittest discover -s tests

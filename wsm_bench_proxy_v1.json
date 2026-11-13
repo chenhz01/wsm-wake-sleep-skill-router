@@ -1,0 +1,3008 @@
+{
+  "meta": {
+    "title": "WSM V1 同口径代理对照实验（本地实跑原始结果）",
+    "generated_at": "2026-11-13 11:49:32",
+    "python": "3.13.14",
+    "python_path": "python (managed)",
+    "package_dir": "publish",
+    "cwd": ".",
+    "abstain_threshold_thr": 8.0,
+    "conf_threshold": 8.0,
+    "deterministic_double_run": true
+  },
+  "honesty": [
+    "外部三基线 context-mode/context-router/skill-weave 本地无源码，未做 1:1 复现；strict_baseline=skiplib.rank@3 仅为三者公共机制(BM25/FTS5 词法路由)的代理基线。",
+    "外部 README 宣称数字(98–99% fewer bytes / 96% fewer tokens / top-1 69.6%)只可作公开宣称引用值，绝非本实验头对头实测。",
+    "BLIND-100 为同作者闭环内部盲测（同作者出题+标注+同引擎评分），非真第三方；统计价值是收窄 Wilson 区间，偏差消除需外部出题。",
+    "C 层应弃权题：strict_baseline/full_resident 无弃权机制，标结构缺失，不当作同口径精度对撞。",
+    "token 节省为『检索式路由 vs 全量常驻』共同优势，非 WSM 相对词法基线的差异化优势。",
+    "本次实验全部基于自包含合成语料，数字由实跑产出，不引用任何历史值；语料与题面经一致性映射与脱敏，不含私有资产。"
+  ],
+  "token_cost_three_metrics": {
+    "source": "skiplib.py cost() / est_tokens()（保守估：CJK 1 token/字，拉丁 1.3/词）",
+    "reproduce": "python skiplib.py cost",
+    "skills_n": 180,
+    "full_resident_catalog_tokens": 10263,
+    "full_resident_catalog_tokens_bpe": 15282,
+    "full_corpus_with_body300_tokens": 52728,
+    "top3_candidate_tokens": 200,
+    "skill_body_avg_tokens": 296,
+    "end_to_end_tokens": 496,
+    "saving_top3_vs_catalog": 0.9806,
+    "saving_e2e_vs_catalog": 0.9517,
+    "note": "token 节省是『检索式路由 vs 全量常驻』的共同优势，WSM 与 strict_baseline 都只加载 top3，此口径非 WSM 相对词法基线的差异化优势。全部数字由本次对自包含合成语料实跑产出。"
+  },
+  "three_way_blind100": {
+    "blind_set": "blindgen.BLIND100（冻结 6:2:2，同作者闭环内部盲测，非真第三方）",
+    "label_protocol": "先题后标，expect 按功能需求；C 层 expect=[] 应弃权",
+    "layer_counts": {
+      "A": 60,
+      "B": 20,
+      "C": 20
+    },
+    "missing_labels": [],
+    "fts5_enabled": true,
+    "AB_router_n80": {
+      "note": "A+B 路由命中题，三方公平对比主口径；分母 n=80",
+      "WSM_v05": {
+        "hit3": 80,
+        "hit1": 80,
+        "cw": 0,
+        "abstain": 0,
+        "autonomous": 80,
+        "n": 80,
+        "hit3_rate": 1.0,
+        "hit1_rate": 1.0,
+        "wilson95_hit3": [
+          0.9542,
+          1.0
+        ],
+        "autonomous_rate": 1.0,
+        "with_fallback_rate": 1.0,
+        "abstain_rate": 0.0,
+        "confident_wrong_rate": 0.0,
+        "pseudo_abstain": 0
+      },
+      "strict_baseline_lexical_proxy": {
+        "hit3": 80,
+        "hit1": 80,
+        "cw": 0,
+        "abstain": 0,
+        "autonomous": 80,
+        "n": 80,
+        "hit3_rate": 1.0,
+        "hit1_rate": 1.0,
+        "wilson95_hit3": [
+          0.9542,
+          1.0
+        ],
+        "autonomous_rate": 1.0,
+        "with_fallback_rate": 1.0,
+        "abstain_rate": 0.0,
+        "confident_wrong_rate": 0.0
+      },
+      "full_resident_control": {
+        "accuracy": "N/A",
+        "reason": "全量常驻无检索/无 LLM 选择动作；本地为纯检索器，无 LLM 端到端评测能力，命中率不可实跑，禁止编造。仅作 token 成本上界对照。"
+      }
+    },
+    "C_abstain_discipline_n20": {
+      "note": "C 层成功=引擎弃权；strict_baseline/full_resident 无弃权机制（结构缺失，非精度失败）",
+      "WSM_v05": {
+        "correct_abstain": 13,
+        "false_confident": 7,
+        "n": 20,
+        "abstain_rate": 0.65
+      },
+      "strict_baseline_lexical_proxy": {
+        "correct_abstain": 0,
+        "false_confident": 20,
+        "n": 20,
+        "abstain_rate": 0.0,
+        "has_abstain_mechanism": false,
+        "reason": "纯词法 rank 恒返回 top3，从不弃权；C 层 20/20 必然自信路由。此为机制差异，非同口径精度对撞。"
+      },
+      "full_resident_control": {
+        "has_abstain_mechanism": false,
+        "accuracy": "N/A"
+      }
+    },
+    "overall_100_WSM": {
+      "n": 100,
+      "k": 93,
+      "overall_rate": 0.93,
+      "wilson95_all100": [
+        0.8625,
+        0.9657
+      ],
+      "G2_pass_all100": true,
+      "AB_wilson95": [
+        0.9542,
+        1.0
+      ],
+      "G2_pass_AB": true,
+      "note": "k = A+B 层 hit@3 + C 层正确弃权；与 blind100_run.json 历史 k=89 交叉验证口径一致"
+    }
+  },
+  "gates": {
+    "definitions_source": {
+      "BLIND40_G1_G5": "wssr_v05.py --blind --gold（gate_inputs）",
+      "BLIND100_G2": "blindgen.py / blind_kit/score_blind.py（全100 Wilson 下界 ≥0.75）"
+    },
+    "BLIND40_v05_gate": {
+      "n": 40,
+      "hit3": 40,
+      "hit3_rate": 1.0,
+      "wilson95": [
+        0.9124,
+        1.0
+      ],
+      "hit1_rate": 0.975,
+      "confident_wrong": 0,
+      "abstain": 0,
+      "autonomous": 40,
+      "gold_robust_rate": 0.9333,
+      "gates": {
+        "G1_blind_hit3_ge_85": true,
+        "G2_wilson_lower_ge_75": true,
+        "G3_confident_wrong_eq_0": true,
+        "G3b_confident_wrong_rate_le_5pct": true,
+        "G4_sample_size_ge_30": true,
+        "G5_gold_robust_ge_85": true
+      },
+      "verdict": "PASS"
+    },
+    "BLIND100_publish_gate": {
+      "G2_wilson_all100_ge_75": true,
+      "observed_wilson_lower_all100": 0.8625,
+      "G2_wilson_AB_ge_75": true,
+      "observed_wilson_lower_AB": 0.9542
+    }
+  },
+  "latency": {
+    "source": "本 harness 实跑（time.perf_counter，BLIND100 全部 100 题 ×5 轮均值）",
+    "queries": 100,
+    "rounds": 5,
+    "WSM_route_ms_per_query_mean": 3.052,
+    "WSM_route_ms_per_query_max_round": 3.694,
+    "strict_baseline_rank_ms_per_query_mean": 5.854,
+    "strict_baseline_rank_ms_per_query_max_round": 7.016,
+    "historical_scale_ref": {
+      "source": "scale_report.json（N=200→500 合成噪声技能压测，历史回执，非本次实跑）",
+      "latency_ms_avg_N200": 4.11,
+      "latency_ms_avg_N500": 7.11,
+      "catalog_tokens_N200": 24057,
+      "catalog_tokens_N500": 48527,
+      "top3_tokens_avg_stable": "398–401（不随 N 增长，在线 O(1) 实证）"
+    }
+  },
+  "blind100_rows": [
+    {
+      "q": "客户下周三要验收，帮我把要交的文件列个清单看看齐不齐",
+      "layer": "A",
+      "expect": [
+        "capability-078"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-078",
+          "capability-124",
+          "capability-020"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 127.4
+      },
+      "strict": {
+        "got": [
+          "capability-078",
+          "capability-054",
+          "capability-124"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 112.44
+      }
+    },
+    {
+      "q": "服务器最近老被扫，帮我看看 SSH 有没有异常登录的痕迹",
+      "layer": "A",
+      "expect": [
+        "capability-160"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-160",
+          "capability-116",
+          "capability-156"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 85.36
+      },
+      "strict": {
+        "got": [
+          "capability-160",
+          "capability-116",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 85.87
+      }
+    },
+    {
+      "q": "邮箱里堆了三十封没回的，帮我按重要程度逐封起草回复",
+      "layer": "A",
+      "expect": [
+        "capability-115"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-115",
+          "capability-004",
+          "capability-006"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 158.39
+      },
+      "strict": {
+        "got": [
+          "capability-115",
+          "capability-004",
+          "capability-006"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 113.38
+      }
+    },
+    {
+      "q": "我们公司想把内部制度文档做成一个能问答的助手，整体怎么规划",
+      "layer": "A",
+      "expect": [
+        "capability-088"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-088",
+          "capability-159",
+          "capability-108"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 132.46
+      },
+      "strict": {
+        "got": [
+          "capability-088",
+          "capability-159",
+          "capability-044"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 118.19
+      }
+    },
+    {
+      "q": "这张报表有五个 sheet 还要连数据库，帮我一句话跑出来",
+      "layer": "A",
+      "expect": [
+        "capability-076"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-076",
+          "capability-056",
+          "capability-101"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 107.11
+      },
+      "strict": {
+        "got": [
+          "capability-076",
+          "capability-101",
+          "capability-056"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 91.02
+      }
+    },
+    {
+      "q": "最近要上电商平台卖货，listing 怎么写才不违规",
+      "layer": "A",
+      "expect": [
+        "capability-003"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-003",
+          "capability-027",
+          "capability-035"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 56.71
+      },
+      "strict": {
+        "got": [
+          "capability-003",
+          "capability-096",
+          "capability-018"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 65.97
+      }
+    },
+    {
+      "q": "这段代码 AI 写的，能跑但我怕有坑，帮我做质量安全审查",
+      "layer": "A",
+      "expect": [
+        "capability-099"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-099",
+          "capability-032",
+          "capability-059"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 131.43
+      },
+      "strict": {
+        "got": [
+          "capability-099",
+          "capability-032",
+          "capability-012"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 85.84
+      }
+    },
+    {
+      "q": "我想把写公众号这个活外包给一队 AI，让它们自己分工自己验收",
+      "layer": "A",
+      "expect": [
+        "capability-124"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-124",
+          "capability-043",
+          "capability-159"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 180.11
+      },
+      "strict": {
+        "got": [
+          "capability-124",
+          "capability-043",
+          "capability-159"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 130.48
+      }
+    },
+    {
+      "q": "读书总是读不进去记不住，你反过来问我问题逼我想",
+      "layer": "A",
+      "expect": [
+        "capability-157"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-157",
+          "capability-091",
+          "capability-139"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 190.66
+      },
+      "strict": {
+        "got": [
+          "capability-157",
+          "capability-091",
+          "capability-139"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 120.06
+      }
+    },
+    {
+      "q": "把这条英文 在线视频站 链接的内容做成中文摘要发给我",
+      "layer": "A",
+      "expect": [
+        "capability-075"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-075",
+          "capability-077",
+          "capability-002"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 112.37
+      },
+      "strict": {
+        "got": [
+          "capability-075",
+          "capability-082",
+          "capability-077"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 94.83
+      }
+    },
+    {
+      "q": "给我的品牌想一首主题曲，要有记忆点还要押韵",
+      "layer": "A",
+      "expect": [
+        "capability-113"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-113",
+          "capability-019",
+          "capability-159"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 81.06
+      },
+      "strict": {
+        "got": [
+          "capability-113",
+          "capability-019",
+          "capability-159"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 81.93
+      }
+    },
+    {
+      "q": "这条定时任务上周悄悄挂了两天没人知道，不能再这样",
+      "layer": "A",
+      "expect": [
+        "capability-074"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-074",
+          "capability-008",
+          "capability-012"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 138.62
+      },
+      "strict": {
+        "got": [
+          "capability-074",
+          "capability-008",
+          "capability-012"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 112.78
+      }
+    },
+    {
+      "q": "这个开源库我想引入，先查查它是不是还活跃、是不是单人项目",
+      "layer": "A",
+      "expect": [
+        "capability-136"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-136",
+          "capability-017",
+          "capability-160"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 139.97
+      },
+      "strict": {
+        "got": [
+          "capability-136",
+          "capability-160",
+          "capability-017"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 125.2
+      }
+    },
+    {
+      "q": "写周报总忘了报风险项，把这个偏好固化下来让 AI 每次都查",
+      "layer": "A",
+      "expect": [
+        "capability-105"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-105",
+          "capability-144",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 137.73
+      },
+      "strict": {
+        "got": [
+          "capability-105",
+          "capability-144",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 109.67
+      }
+    },
+    {
+      "q": "这封要发出去的公告里可能含客户手机号，先查有没有敏感信息泄漏",
+      "layer": "A",
+      "expect": [
+        "capability-003"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-003",
+          "capability-116",
+          "capability-013"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 115.83
+      },
+      "strict": {
+        "got": [
+          "capability-003",
+          "capability-116",
+          "capability-065"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 121.04
+      }
+    },
+    {
+      "q": "我想搞一条自动发合作私信的管线，发出去之前必须有人把关",
+      "layer": "A",
+      "expect": [
+        "capability-017"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-017",
+          "capability-127",
+          "capability-002"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 138.15
+      },
+      "strict": {
+        "got": [
+          "capability-017",
+          "capability-127",
+          "capability-156"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 117.8
+      }
+    },
+    {
+      "q": "MCP 服务器到底跟我的客户端说了什么，给我抓包看看",
+      "layer": "A",
+      "expect": [
+        "capability-116"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-116",
+          "capability-156",
+          "capability-160"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 91.63
+      },
+      "strict": {
+        "got": [
+          "capability-116",
+          "capability-160",
+          "capability-156"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 82.52
+      }
+    },
+    {
+      "q": "把 在线大模型 的这个分享链接完整导出来，别截断",
+      "layer": "A",
+      "expect": [
+        "capability-077"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-077",
+          "capability-112",
+          "capability-120"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 183.83
+      },
+      "strict": {
+        "got": [
+          "capability-077",
+          "capability-112",
+          "capability-075"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 101.42
+      }
+    },
+    {
+      "q": "教我家孩子编程，怎么做他才能真记住",
+      "layer": "A",
+      "expect": [
+        "capability-106"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-106",
+          "capability-172",
+          "capability-164"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 75.3
+      },
+      "strict": {
+        "got": [
+          "capability-106",
+          "capability-172",
+          "capability-164"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 67.24
+      }
+    },
+    {
+      "q": "我要写一本爽文，但前十章节奏总是崩",
+      "layer": "A",
+      "expect": [
+        "capability-037"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-037",
+          "capability-034",
+          "capability-140"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 77.67
+      },
+      "strict": {
+        "got": [
+          "capability-037",
+          "capability-034",
+          "capability-140"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 68.27
+      }
+    },
+    {
+      "q": "股票仓位怎么配，帮我按规则算算别重仓",
+      "layer": "A",
+      "expect": [
+        "capability-132"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-132",
+          "capability-161",
+          "capability-177"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 48.39
+      },
+      "strict": {
+        "got": [
+          "capability-132",
+          "capability-161",
+          "capability-177"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 57.84
+      }
+    },
+    {
+      "q": "帮我看看今天 代码托管平台 上有什么新东西值得跟进",
+      "layer": "A",
+      "expect": [
+        "capability-018"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-018",
+          "capability-096",
+          "capability-095"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 122.79
+      },
+      "strict": {
+        "got": [
+          "capability-018",
+          "capability-096",
+          "capability-095"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 85.11
+      }
+    },
+    {
+      "q": "这个页面转化率只有百分之零点八，帮我诊断怎么提升",
+      "layer": "A",
+      "expect": [
+        "capability-011"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-011",
+          "capability-144",
+          "capability-025"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 115.58
+      },
+      "strict": {
+        "got": [
+          "capability-011",
+          "capability-144",
+          "capability-007"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 94.88
+      }
+    },
+    {
+      "q": "新产品到底卖多少钱，怎么打包分层定价",
+      "layer": "A",
+      "expect": [
+        "capability-029"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-029",
+          "capability-038",
+          "capability-061"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 102.34
+      },
+      "strict": {
+        "got": [
+          "capability-029",
+          "capability-167",
+          "capability-038"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 75.14
+      }
+    },
+    {
+      "q": "把我桌面那堆截图都识读一遍存进笔记库",
+      "layer": "A",
+      "expect": [
+        "capability-101"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-101",
+          "capability-009",
+          "capability-022"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 103.82
+      },
+      "strict": {
+        "got": [
+          "capability-101",
+          "capability-167",
+          "capability-022"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 88.12
+      }
+    },
+    {
+      "q": "这套 Excel 汇总我每天手抄太蠢了，做个录制回放的自动化",
+      "layer": "A",
+      "expect": [
+        "capability-137"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-137",
+          "capability-076",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 90.44
+      },
+      "strict": {
+        "got": [
+          "capability-137",
+          "capability-076",
+          "capability-030"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 91.44
+      }
+    },
+    {
+      "q": "新配的域名邮箱发出去全进垃圾箱，查查证书和链路",
+      "layer": "A",
+      "expect": [
+        "capability-156"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-156",
+          "capability-017",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 118.54
+      },
+      "strict": {
+        "got": [
+          "capability-156",
+          "capability-017",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 94.26
+      }
+    },
+    {
+      "q": "这个模型到底什么时候被换掉的，帮我查本机记录",
+      "layer": "A",
+      "expect": [
+        "capability-120"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-120",
+          "capability-030",
+          "capability-093"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 105.85
+      },
+      "strict": {
+        "got": [
+          "capability-120",
+          "capability-030",
+          "capability-093"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 82.91
+      }
+    },
+    {
+      "q": "我想把我自己的人生故事做成一个 AI 陪伴的记忆体",
+      "layer": "A",
+      "expect": [
+        "capability-159"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-159",
+          "capability-043",
+          "capability-124"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 153.97
+      },
+      "strict": {
+        "got": [
+          "capability-159",
+          "capability-124",
+          "capability-088"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 98.74
+      }
+    },
+    {
+      "q": "上个月的周报又没发出来，查一下到底哪个环节断了",
+      "layer": "A",
+      "expect": [
+        "capability-118"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-118",
+          "capability-120",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 84.16
+      },
+      "strict": {
+        "got": [
+          "capability-118",
+          "capability-120",
+          "capability-160"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 83.51
+      }
+    },
+    {
+      "q": "这批学习视频太长，把每集压成三分钟要点",
+      "layer": "A",
+      "expect": [
+        "capability-107"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-107",
+          "capability-075",
+          "capability-006"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 88.76
+      },
+      "strict": {
+        "got": [
+          "capability-107",
+          "capability-075",
+          "capability-006"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 81.37
+      }
+    },
+    {
+      "q": "帮我把新书发布的宣传做成有钩子的短剧脚本",
+      "layer": "A",
+      "expect": [
+        "capability-054"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-054",
+          "capability-108",
+          "capability-052"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 122.77
+      },
+      "strict": {
+        "got": [
+          "capability-054",
+          "capability-023",
+          "capability-052"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 91.46
+      }
+    },
+    {
+      "q": "客户问能不能做个企业即时通讯机器人，帮我评估整体架构",
+      "layer": "A",
+      "expect": [
+        "capability-044"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-044",
+          "capability-088",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 142.7
+      },
+      "strict": {
+        "got": [
+          "capability-044",
+          "capability-088",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 113.87
+      }
+    },
+    {
+      "q": "我想看看这套自动化工跑了半年到底值不值",
+      "layer": "A",
+      "expect": [
+        "capability-030"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-030",
+          "capability-008",
+          "capability-177"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 95.15
+      },
+      "strict": {
+        "got": [
+          "capability-030",
+          "capability-137",
+          "capability-008"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 79.29
+      }
+    },
+    {
+      "q": "把这本书的核心思想蒸馏成我能随时调用的思维模块",
+      "layer": "A",
+      "expect": [
+        "capability-064"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-064",
+          "capability-068",
+          "capability-042"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 159.91
+      },
+      "strict": {
+        "got": [
+          "capability-064",
+          "capability-068",
+          "capability-042"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 119.44
+      }
+    },
+    {
+      "q": "帮我做一个动嘴说话就能办事的语音助手",
+      "layer": "A",
+      "expect": [
+        "capability-174"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-174",
+          "capability-063",
+          "capability-098"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 181.92
+      },
+      "strict": {
+        "got": [
+          "capability-174",
+          "capability-098",
+          "capability-019"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 101.61
+      }
+    },
+    {
+      "q": "我招聘 AI 工程师，帮我出面试题和评估标准",
+      "layer": "A",
+      "expect": [
+        "capability-047"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-047",
+          "capability-087",
+          "capability-145"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 67.13
+      },
+      "strict": {
+        "got": [
+          "capability-047",
+          "capability-087",
+          "capability-145"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 65.02
+      }
+    },
+    {
+      "q": "把这个竞争网站的整个页面复刻下来分析",
+      "layer": "A",
+      "expect": [
+        "capability-144"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-144",
+          "capability-061",
+          "capability-091"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 112.02
+      },
+      "strict": {
+        "got": [
+          "capability-144",
+          "capability-011",
+          "capability-061"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 83.02
+      }
+    },
+    {
+      "q": "每周日自动给我出一份思维周报",
+      "layer": "A",
+      "expect": [
+        "capability-058"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-058",
+          "capability-031",
+          "capability-126"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 77.37
+      },
+      "strict": {
+        "got": [
+          "capability-058",
+          "capability-031",
+          "capability-126"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 59.75
+      }
+    },
+    {
+      "q": "这个想法能不能落地成产品赚钱，帮我过一遍变现路径",
+      "layer": "A",
+      "expect": [
+        "capability-167"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-167",
+          "capability-088",
+          "capability-003"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 100.81
+      },
+      "strict": {
+        "got": [
+          "capability-167",
+          "capability-003",
+          "capability-062"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 94.94
+      }
+    },
+    {
+      "q": "从零给我搭一个能自己长文章的知识库",
+      "layer": "A",
+      "expect": [
+        "capability-024"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-024",
+          "capability-141",
+          "capability-108"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 100.59
+      },
+      "strict": {
+        "got": [
+          "capability-024",
+          "capability-141",
+          "capability-108"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 71.25
+      }
+    },
+    {
+      "q": "旧笔记格式太乱，批量洗干净搬进知识库",
+      "layer": "A",
+      "expect": [
+        "capability-022"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-022",
+          "capability-023",
+          "capability-024"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 161.61
+      },
+      "strict": {
+        "got": [
+          "capability-022",
+          "capability-023",
+          "capability-026"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 92.83
+      }
+    },
+    {
+      "q": "把新资料喂进知识库自动生成摘要",
+      "layer": "A",
+      "expect": [
+        "capability-023"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-023",
+          "capability-022",
+          "capability-141"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 146.93
+      },
+      "strict": {
+        "got": [
+          "capability-023",
+          "capability-022",
+          "capability-141"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 86.89
+      }
+    },
+    {
+      "q": "知识库体检，找矛盾页和孤立页",
+      "layer": "A",
+      "expect": [
+        "capability-025"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-025",
+          "capability-024",
+          "capability-021"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 153.59
+      },
+      "strict": {
+        "got": [
+          "capability-025",
+          "capability-023",
+          "capability-022"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 85.43
+      }
+    },
+    {
+      "q": "给知识库做份周复盘报告",
+      "layer": "A",
+      "expect": [
+        "capability-026"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-026",
+          "capability-024",
+          "capability-021"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 126.75
+      },
+      "strict": {
+        "got": [
+          "capability-026",
+          "capability-023",
+          "capability-022"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 71.57
+      }
+    },
+    {
+      "q": "长篇小说我要个可控的创作台",
+      "layer": "A",
+      "expect": [
+        "capability-028"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-028",
+          "capability-033",
+          "capability-020"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 161.84
+      },
+      "strict": {
+        "got": [
+          "capability-028",
+          "capability-020",
+          "capability-034"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 85.59
+      }
+    },
+    {
+      "q": "小说一股 AI 味，去掉翻译腔和堆砌",
+      "layer": "A",
+      "expect": [
+        "capability-033"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-033",
+          "capability-059",
+          "capability-028"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 178.79
+      },
+      "strict": {
+        "got": [
+          "capability-033",
+          "capability-059",
+          "capability-028"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 93.58
+      }
+    },
+    {
+      "q": "长篇连载怎么控节奏分卷",
+      "layer": "A",
+      "expect": [
+        "capability-034"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-034",
+          "capability-037",
+          "capability-028"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 159.29
+      },
+      "strict": {
+        "got": [
+          "capability-034",
+          "capability-037",
+          "capability-028"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 73.57
+      }
+    },
+    {
+      "q": "历史架空小说需要资深编辑把关",
+      "layer": "A",
+      "expect": [
+        "capability-040"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-040",
+          "capability-033",
+          "capability-028"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 212.5
+      },
+      "strict": {
+        "got": [
+          "capability-040",
+          "capability-033",
+          "capability-028"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 98.12
+      }
+    },
+    {
+      "q": "写网文先想怎么过流量关再打磨内容",
+      "layer": "A",
+      "expect": [
+        "capability-175"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-175",
+          "capability-037",
+          "capability-176"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 195.03
+      },
+      "strict": {
+        "got": [
+          "capability-175",
+          "capability-037",
+          "capability-176"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 101.17
+      }
+    },
+    {
+      "q": "把热门仓库批量做成学习卡",
+      "layer": "A",
+      "expect": [
+        "capability-016"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-016",
+          "capability-170",
+          "capability-111"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 157.73
+      },
+      "strict": {
+        "got": [
+          "capability-016",
+          "capability-170",
+          "capability-111"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 72.63
+      }
+    },
+    {
+      "q": "帮我在浏览器里自动操作网页，登录后抓数据",
+      "layer": "A",
+      "expect": [
+        "capability-007"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-007",
+          "capability-008",
+          "capability-076"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 178.4
+      },
+      "strict": {
+        "got": [
+          "capability-007",
+          "capability-008",
+          "capability-137"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 108.97
+      }
+    },
+    {
+      "q": "浏览器自动化挂了，手动接管浏览器",
+      "layer": "A",
+      "expect": [
+        "capability-008"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-008",
+          "capability-007",
+          "capability-012"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 174.6
+      },
+      "strict": {
+        "got": [
+          "capability-008",
+          "capability-007",
+          "capability-074"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 98.63
+      }
+    },
+    {
+      "q": "截图坏了看不清，从剪贴板找回原图",
+      "layer": "A",
+      "expect": [
+        "capability-009"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-009",
+          "capability-101",
+          "capability-161"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 236.64
+      },
+      "strict": {
+        "got": [
+          "capability-009",
+          "capability-101"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 110.34
+      }
+    },
+    {
+      "q": "用代码渲染视频，怎么省积分一次写对",
+      "layer": "A",
+      "expect": [
+        "capability-010"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-010",
+          "capability-134",
+          "capability-109"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 209.93
+      },
+      "strict": {
+        "got": [
+          "capability-010",
+          "capability-004",
+          "capability-024"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 97.39
+      }
+    },
+    {
+      "q": "本地服务 又挂了，修一下",
+      "layer": "A",
+      "expect": [
+        "capability-012"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-012",
+          "capability-008",
+          "capability-160"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 111.89
+      },
+      "strict": {
+        "got": [
+          "capability-012",
+          "capability-160",
+          "capability-074"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 51.92
+      }
+    },
+    {
+      "q": "给目标主机批量装插件，装完检查生效没有",
+      "layer": "A",
+      "expect": [
+        "capability-013"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-013",
+          "capability-003",
+          "capability-117"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 219.43
+      },
+      "strict": {
+        "got": [
+          "capability-013",
+          "capability-003",
+          "capability-160"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 114.71
+      }
+    },
+    {
+      "q": "把 既有框架 的性能优化方法搬进目标平台",
+      "layer": "A",
+      "expect": [
+        "capability-014"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-014",
+          "capability-086",
+          "capability-180"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 198.6
+      },
+      "strict": {
+        "got": [
+          "capability-014",
+          "capability-086",
+          "capability-180"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 103.83
+      }
+    },
+    {
+      "q": "把几条本能模式固化成自进化技能",
+      "layer": "A",
+      "expect": [
+        "capability-015"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-015",
+          "capability-151",
+          "capability-105"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 223.55
+      },
+      "strict": {
+        "got": [
+          "capability-015",
+          "capability-105",
+          "capability-089"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 104.05
+      }
+    },
+    {
+      "q": "给技能库出一份台账清单",
+      "layer": "A",
+      "expect": [
+        "capability-031"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-031",
+          "capability-151",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 144.25
+      },
+      "strict": {
+        "got": [
+          "capability-031",
+          "capability-151",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 74.72
+      }
+    },
+    {
+      "q": "帮我检查 AI 写的东西有没有占位符和瞎编数字，能不能交付",
+      "layer": "B",
+      "expect": [
+        "capability-003"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-003",
+          "capability-059",
+          "capability-062"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 249.93
+      },
+      "strict": {
+        "got": [
+          "capability-003",
+          "capability-059",
+          "capability-013"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 133.3
+      }
+    },
+    {
+      "q": "装新技能前先做安全审计，看有没有恶意代码",
+      "layer": "B",
+      "expect": [
+        "capability-032"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-032",
+          "capability-116",
+          "capability-093"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 197.21
+      },
+      "strict": {
+        "got": [
+          "capability-032",
+          "capability-093",
+          "capability-116"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 106.13
+      }
+    },
+    {
+      "q": "把这段粗糙的产品描述转成分镜提示词",
+      "layer": "B",
+      "expect": [
+        "capability-080"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-080",
+          "capability-178",
+          "capability-097"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 203.95
+      },
+      "strict": {
+        "got": [
+          "capability-080",
+          "capability-178",
+          "capability-097"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 104.04
+      }
+    },
+    {
+      "q": "写一个专业格式的剧本，三幕结构",
+      "layer": "B",
+      "expect": [
+        "capability-140"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-140",
+          "capability-054",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 135.24
+      },
+      "strict": {
+        "got": [
+          "capability-140",
+          "capability-054",
+          "capability-058"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 68.31
+      }
+    },
+    {
+      "q": "写一条有钩子有反转的爆款短剧",
+      "layer": "B",
+      "expect": [
+        "capability-054"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-054",
+          "capability-072",
+          "capability-052"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 204.35
+      },
+      "strict": {
+        "got": [
+          "capability-054",
+          "capability-072",
+          "capability-052"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 99.24
+      }
+    },
+    {
+      "q": "做一支水墨古风短片",
+      "layer": "B",
+      "expect": [
+        "capability-098"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-098",
+          "capability-063",
+          "capability-019"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 131.77
+      },
+      "strict": {
+        "got": [
+          "capability-098",
+          "capability-019",
+          "capability-063"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 66.89
+      }
+    },
+    {
+      "q": "用 视频生成模型 做 AI 影片",
+      "layer": "B",
+      "expect": [
+        "capability-055"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-055",
+          "capability-098",
+          "capability-155"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 108.28
+      },
+      "strict": {
+        "got": [
+          "capability-055",
+          "capability-098",
+          "capability-155"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 56.09
+      }
+    },
+    {
+      "q": "把这条视频的功能做成内置技能",
+      "layer": "B",
+      "expect": [
+        "capability-082"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-082",
+          "capability-109",
+          "capability-081"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 140.29
+      },
+      "strict": {
+        "got": [
+          "capability-082",
+          "capability-109",
+          "capability-081"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 83.64
+      }
+    },
+    {
+      "q": "抓取这条短视频平台视频的数据和文案",
+      "layer": "B",
+      "expect": [
+        "capability-081"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-081",
+          "capability-180",
+          "capability-082"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 191.1
+      },
+      "strict": {
+        "got": [
+          "capability-081",
+          "capability-180",
+          "capability-082"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 104.78
+      }
+    },
+    {
+      "q": "评估这个产品用开源加论文互证",
+      "layer": "B",
+      "expect": [
+        "capability-038"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-038",
+          "capability-029",
+          "capability-061"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 201.44
+      },
+      "strict": {
+        "got": [
+          "capability-038",
+          "capability-029",
+          "capability-061"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 96.25
+      }
+    },
+    {
+      "q": "对这个产品做全维度优劣分析",
+      "layer": "B",
+      "expect": [
+        "capability-061"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-061",
+          "capability-038",
+          "capability-029"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 194.79
+      },
+      "strict": {
+        "got": [
+          "capability-061",
+          "capability-038",
+          "capability-029"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 90.44
+      }
+    },
+    {
+      "q": "按我的水平因材施教地教我",
+      "layer": "B",
+      "expect": [
+        "capability-041"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-041",
+          "capability-164",
+          "capability-111"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 189.72
+      },
+      "strict": {
+        "got": [
+          "capability-041",
+          "capability-164",
+          "capability-111"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 87.5
+      }
+    },
+    {
+      "q": "教我的时候守住老师的位置，别变成陪聊",
+      "layer": "B",
+      "expect": [
+        "capability-164"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-164",
+          "capability-041",
+          "capability-105"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 211.68
+      },
+      "strict": {
+        "got": [
+          "capability-164",
+          "capability-041",
+          "capability-105"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 108.06
+      }
+    },
+    {
+      "q": "交付的东西要带通俗版和清单",
+      "layer": "B",
+      "expect": [
+        "capability-165"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-165",
+          "capability-003",
+          "capability-059"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 166.88
+      },
+      "strict": {
+        "got": [
+          "capability-165",
+          "capability-003",
+          "capability-059"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 76.94
+      }
+    },
+    {
+      "q": "把这个仓库从 1.0 升到 6.0",
+      "layer": "B",
+      "expect": [
+        "capability-147"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-147",
+          "capability-136",
+          "capability-110"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 51.37
+      },
+      "strict": {
+        "got": [
+          "capability-147",
+          "capability-110",
+          "capability-144"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 30.45
+      }
+    },
+    {
+      "q": "从零造一个 skill 并验证它",
+      "layer": "B",
+      "expect": [
+        "capability-154"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-154",
+          "capability-024",
+          "capability-153"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 98.37
+      },
+      "strict": {
+        "got": [
+          "capability-154",
+          "capability-024",
+          "capability-153"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 54.77
+      }
+    },
+    {
+      "q": "让技能和 开放标准 标准互通",
+      "layer": "B",
+      "expect": [
+        "capability-145"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-145",
+          "capability-151",
+          "capability-031"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 136.59
+      },
+      "strict": {
+        "got": [
+          "capability-145",
+          "capability-047",
+          "capability-149"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 71.56
+      }
+    },
+    {
+      "q": "技能市场里有什么好用的",
+      "layer": "B",
+      "expect": [
+        "capability-146"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-146",
+          "capability-005",
+          "capability-018"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 147.2
+      },
+      "strict": {
+        "got": [
+          "capability-146",
+          "capability-096",
+          "capability-018"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 67.8
+      }
+    },
+    {
+      "q": "检查代码是否符合 MCP 新规范",
+      "layer": "B",
+      "expect": [
+        "capability-117"
+      ],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-117",
+          "capability-116",
+          "capability-092"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 165.0
+      },
+      "strict": {
+        "got": [
+          "capability-117",
+          "capability-116",
+          "capability-092"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 76.62
+      }
+    },
+    {
+      "q": "审计 MCP 通信有没有异常",
+      "layer": "B",
+      "expect": [
+        "capability-116"
+      ],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-116",
+          "capability-093",
+          "capability-013"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "abstain": false,
+        "top1": 107.2
+      },
+      "strict": {
+        "got": [
+          "capability-116",
+          "capability-093",
+          "capability-032"
+        ],
+        "ok3": true,
+        "ok1": true,
+        "top1": 49.55
+      }
+    },
+    {
+      "q": "帮我预约明天下午三点的牙医",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 0.0
+      },
+      "strict": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "top1": 0.0
+      }
+    },
+    {
+      "q": "今晚吃什么，给我推荐个菜谱",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-056",
+          "capability-058",
+          "capability-024"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 12.7
+      },
+      "strict": {
+        "got": [
+          "capability-056",
+          "capability-058",
+          "capability-024"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 5.81
+      }
+    },
+    {
+      "q": "翻译这段法语合同成英文",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-033",
+          "capability-075",
+          "capability-080"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 17.94
+      },
+      "strict": {
+        "got": [
+          "capability-075",
+          "capability-033",
+          "capability-080"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 8.95
+      }
+    },
+    {
+      "q": "帮我把这张照片调成复古胶片色调",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-076",
+          "capability-101",
+          "capability-147"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 15.03
+      },
+      "strict": {
+        "got": [
+          "capability-076",
+          "capability-101",
+          "capability-147"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 7.91
+      }
+    },
+    {
+      "q": "我家 WiFi 连不上，帮我远程修一下路由器",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-012",
+          "capability-160",
+          "capability-138"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 31.23
+      },
+      "strict": {
+        "got": [
+          "capability-012",
+          "capability-048",
+          "capability-138"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 14.48
+      }
+    },
+    {
+      "q": "帮我把这段录音转成文字",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-080",
+          "capability-147",
+          "capability-144"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 45.4
+      },
+      "strict": {
+        "got": [
+          "capability-080",
+          "capability-147",
+          "capability-144"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 21.07
+      }
+    },
+    {
+      "q": "这首歌的版权归谁，帮我查一下",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-019",
+          "capability-012",
+          "capability-004"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 42.31
+      },
+      "strict": {
+        "got": [
+          "capability-019",
+          "capability-118",
+          "capability-160"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 8.77
+      }
+    },
+    {
+      "q": "明天的天气怎么样",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 0.0
+      },
+      "strict": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "top1": 0.0
+      }
+    },
+    {
+      "q": "帮我在电商平台上下单买个鼠标",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-070",
+          "capability-122",
+          "capability-002"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 15.11
+      },
+      "strict": {
+        "got": [
+          "capability-003",
+          "capability-007",
+          "capability-070"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 11.44
+      }
+    },
+    {
+      "q": "我的猫生病了，应该喂什么药",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-164",
+          "capability-111",
+          "capability-063"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 11.18
+      },
+      "strict": {
+        "got": [
+          "capability-164",
+          "capability-111",
+          "capability-137"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 5.12
+      }
+    },
+    {
+      "q": "帮我算一下房贷月供",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-012",
+          "capability-004",
+          "capability-005"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 12.79
+      },
+      "strict": {
+        "got": [
+          "capability-012",
+          "capability-004",
+          "capability-005"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 5.9
+      }
+    },
+    {
+      "q": "推荐几部好看的科幻电影",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 0.0
+      },
+      "strict": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "top1": 0.0
+      }
+    },
+    {
+      "q": "把这份 PDF 转成 Word",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-080",
+          "capability-147",
+          "capability-144"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 29.94
+      },
+      "strict": {
+        "got": [
+          "capability-080",
+          "capability-147",
+          "capability-144"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 13.87
+      }
+    },
+    {
+      "q": "帮我抢演唱会门票",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 0.0
+      },
+      "strict": {
+        "got": [],
+        "ok3": false,
+        "ok1": false,
+        "top1": 0.0
+      }
+    },
+    {
+      "q": "帮我校对这份英文论文的语法",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-174",
+          "capability-038",
+          "capability-061"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 18.82
+      },
+      "strict": {
+        "got": [
+          "capability-075",
+          "capability-174",
+          "capability-038"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 8.95
+      }
+    },
+    {
+      "q": "帮我设计一个公司 logo",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-088",
+          "capability-044",
+          "capability-142"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 39.69
+      },
+      "strict": {
+        "got": [
+          "capability-044",
+          "capability-088",
+          "capability-142"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 14.33
+      }
+    },
+    {
+      "q": "把这段视频里的字幕提取出来",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-080",
+          "capability-097",
+          "capability-180"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 26.63
+      },
+      "strict": {
+        "got": [
+          "capability-080",
+          "capability-180",
+          "capability-097"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 12.3
+      }
+    },
+    {
+      "q": "帮我查一下北京到上海的高铁时刻表",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-012",
+          "capability-004",
+          "capability-005"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 12.79
+      },
+      "strict": {
+        "got": [
+          "capability-118",
+          "capability-160",
+          "capability-012"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 7.56
+      }
+    },
+    {
+      "q": "给我讲个睡前笑话",
+      "layer": "C",
+      "expect": [],
+      "human": true,
+      "wsm": {
+        "got": [
+          "capability-056",
+          "capability-058",
+          "capability-024"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": false,
+        "top1": 12.7
+      },
+      "strict": {
+        "got": [
+          "capability-056",
+          "capability-058",
+          "capability-024"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 5.81
+      }
+    },
+    {
+      "q": "帮我校准一下跑步手表的心率区间",
+      "layer": "C",
+      "expect": [],
+      "human": false,
+      "wsm": {
+        "got": [
+          "capability-012",
+          "capability-004",
+          "capability-005"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "abstain": true,
+        "top1": 12.79
+      },
+      "strict": {
+        "got": [
+          "capability-012",
+          "capability-004",
+          "capability-005"
+        ],
+        "ok3": false,
+        "ok1": false,
+        "top1": 5.9
+      }
+    }
+  ]
+}

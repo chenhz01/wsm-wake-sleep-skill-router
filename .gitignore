@@ -1,0 +1,20 @@
+# Python bytecode / caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Ephemeral run artifacts (scratch dumps, clean-env preflight backups)
+F.json
+_preflight_*
+
+# SQLite runtime sidecars only.
+# NOTE: skillgraph.db itself IS shipped with the repository on purpose —
+# do NOT add it (or a broad *.db rule) to this ignore list.
+*.db-wal
+*.db-shm
+!skillgraph.db
+
+# Editor / OS noise
+.DS_Store
+*.swp
+Thumbs.db
